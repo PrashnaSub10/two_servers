@@ -1,0 +1,15 @@
+# Local environment
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+
+# App data
+server-a/uploads/
+server-b/repo/
+
+# Docker artifacts
+*.log

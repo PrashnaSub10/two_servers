@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  server-a:
+    build:
+      context: ./server-a
+    container_name: secure-file-a
+    env_file:
+      - .env
+    environment:
+      SHARED_KEY: ${SHARED_KEY}
+      SERVER_B_URL: http://server-b:8080/receive
+    ports:
+      - "${SERVER_A_HOST_PORT:-8081}:8080"
+    networks:
+      private-net:
+        ipv4_address: 10.42.0.2
+    depends_on:
+      - server-b
+
+  server-b:
+    build:
+      context: ./server-b
+    container_name: secure-file-b
+    env_file:
+      - .env
+    environment:
+      SHARED_KEY: ${SHARED_KEY}
+      GITHUB_OWNER: ${GITHUB_OWNER}
+      GITHUB_REPO: ${GITHUB_REPO}
+      GITHUB_BRANCH: ${GITHUB_BRANCH}
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+      GIT_USER_NAME: ${GIT_USER_NAME}
+      GIT_USER_EMAIL: ${GIT_USER_EMAIL}
+      REPO_PATH: /data/repo
+    volumes:
+      - ./server-b/repo:/data/repo
+    networks:
+      private-net:
+        ipv4_address: 10.42.0.3
+    expose:
+      - "8080"
+
+networks:
+  private-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.42.0.0/28
+          gateway: 10.42.0.1
